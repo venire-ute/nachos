@@ -24,7 +24,10 @@
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
+#ifdef CHANGED
+#include "consoledriver.h"
 
+#endif // CHANGED
 
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
@@ -89,7 +92,7 @@ ExceptionHandler (ExceptionType which)
                     DEBUG ('s', "PutChar\n");
               
                     char c = (char)machine->ReadRegister(4);
-                    consoleDriver->PutChar(c);
+                    consoledriver->PutChar(c);
                     break;
                   }
                 #endif // CHANGED
