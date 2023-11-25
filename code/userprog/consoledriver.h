@@ -14,6 +14,7 @@ void PutChar(int ch); // Behaves like putchar(3S)
 int GetChar(); // Behaves like getchar(3S)
 void PutString(const char *s); // Behaves like fputs(3S)
 void GetString(char *s, int n); // Behaves like fgets(3S)
+void copyStringFromMachine(int from, char *to, unsigned size);
 private:
 Console *console;
 };

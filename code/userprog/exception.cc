@@ -24,8 +24,9 @@
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
-#ifdef CHANGED
 #include "consoledriver.h"
+#ifdef CHANGED
+
 
 #endif // CHANGED
 
@@ -93,6 +94,24 @@ ExceptionHandler (ExceptionType which)
               
                     char c = (char)machine->ReadRegister(4);
                     consoledriver->PutChar(c);
+                    break;
+                  }
+                case SC_PutString:
+                  {
+                    DEBUG ('s', "PutString\n");
+                    int from = machine->ReadRegister(4);
+                    char *to = new char[MAX_STRING_SIZE];
+                    consoledriver->copyStringFromMachine(from, to, MAX_STRING_SIZE);
+                    consoledriver->PutString(to);
+                    delete[] to;
+                    break;
+                  }
+                case SC_GetString:
+                  {
+                    DEBUG ('s', "GetString\n");
+                    char c = consoledriver->GetString();
+                    machine->WriteRegister(2, (int)c);
+                    
                     break;
                   }
                 #endif // CHANGED

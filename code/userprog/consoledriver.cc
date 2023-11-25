@@ -32,10 +32,37 @@ int ConsoleDriver::GetChar()
 }
 void ConsoleDriver::PutString(const char *s)
 { 
-// ...
+
+    while(*s != '\0'){
+        PutChar(*s);
+        s++;
+    }
 }
 void ConsoleDriver::GetString(char *s, int n)
 {
-// ...
+
+    int i = 0;
+    char c;
+    while(i < n){
+        c = GetChar();
+        if(c == EOF){
+            break;
+        }
+        s[i] = c;
+        i++;
+    }
+    s[i] = '\0';
+}
+void ConsoleDriver::copyStringFromMachine( int from, char *to, unsigned size){
+    unsigned i = 0;
+    int c;
+    while(i < size){
+        machine->ReadMem(from+i, 1, &c);
+        to[i] = (char) c;
+        if(c == '\0'){
+            break;
+        }
+        i++;
+    }
 }
 #endif // CHANGED

@@ -35,7 +35,9 @@
 
 #ifdef CHANGED
 #define SC_PutChar 11
-void PutChar(char c);
+#define SC_PutString 12
+#define SC_GetString 13
+
 #endif
 
 #ifdef IN_USER_MODE
@@ -135,6 +137,12 @@ void Fork (void (*func) (void));
  * or not.
  */
 void Yield (void);
+
+#ifdef CHANGED
+void PutChar(char c);
+void PutString(const char *s);
+void GetString(char *s, int n);
+#endif // CHANGED
 
 #endif // IN_USER_MODE
 
