@@ -292,3 +292,37 @@ AddrSpace::RestoreState ()
     machine->currentPageTable = pageTable;
     machine->currentPageTableSize = numPages;
 }
+
+#ifdef CHANGED
+
+// void ReadAtVirtual(OpenFile *executable, int virtualaddr, int numBytes, int position, TranslationEntry *pageTable, unsigned numPages)
+// {
+//     // appel ReadAt une seule fois  pour remplir un buffer temporaire
+//     char *buffer = new char[numBytes];
+//     int read = executable->ReadAt(buffer, numBytes, position);
+//     // vérification de la lecture
+//     if (read != numBytes)
+//         throw std::bad_alloc();
+
+//     // changement de table de page
+//     TranslationEntry *oldPageTable = machine->currentPageTable;
+//     unsigned oldPageTableSize = machine->currentPageTableSize;
+//     machine->currentPageTable = pageTable;
+//     machine->currentPageTableSize = numPages;
+
+//     // recopie en mémoire MIPS octet par octet avec WriteMem
+//     for (int i = 0; i < numBytes; i++){
+        
+//         machine->WriteMem(virtualaddr + i, 1, buffer[i]); 
+
+//     }
+
+//     // restauration de la table de page
+//     machine->currentPageTable = oldPageTable;
+//     machine->currentPageTableSize = oldPageTableSize;
+    
+//     // libération du buffer temporaire
+//     delete [] buffer;
+// }
+
+#endif // CHANGED

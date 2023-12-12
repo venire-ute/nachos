@@ -166,6 +166,7 @@ __main:
         j       $31
         .end      __main
 
+#ifdef CHANGED
 
         .globl PutChar
         .ent   PutChar
@@ -174,6 +175,14 @@ PutChar:
         syscall
         j        $31
         .end   PutChar
+
+        .globl GetChar
+        .ent   GetChar
+GetChar:
+        addiu $2,$0,SC_GetChar
+        syscall
+        j        $31
+        .end   GetChar
 
 
 
@@ -184,3 +193,21 @@ PutString:
         syscall
         j        $31
         .end   PutString
+
+        .globl PutInt
+        .ent   PutInt
+PutInt:
+        addiu $2,$0,SC_PutInt
+        syscall
+        j        $31
+        .end   PutInt
+
+        .globl GetInt
+        .ent   GetInt
+GetInt:
+        addiu $2,$0,SC_GetInt
+        syscall
+        j        $31
+        .end   GetInt
+
+#endif // CHANGED

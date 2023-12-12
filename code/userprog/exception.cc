@@ -27,6 +27,7 @@
 #include "consoledriver.h"
 #ifdef CHANGED
 
+#include "machine.h"
 
 #endif // CHANGED
 
@@ -37,12 +38,12 @@
 static void
 UpdatePC ()
 {
-    int pc = machine->ReadRegister (PCReg);
-    machine->WriteRegister (PrevPCReg, pc);
-    pc = machine->ReadRegister (NextPCReg);
-    machine->WriteRegister (PCReg, pc);
-    pc += 4;
-    machine->WriteRegister (NextPCReg, pc);
+  int pc = machine->ReadRegister (PCReg);
+  machine->WriteRegister (PrevPCReg, pc);
+  pc = machine->ReadRegister (NextPCReg);
+  machine->WriteRegister (PCReg, pc);
+  pc += 4;
+  machine->WriteRegister (NextPCReg, pc);
 }
 
 
@@ -106,14 +107,39 @@ ExceptionHandler (ExceptionType which)
                     delete[] to;
                     break;
                   }
-                case SC_GetString:
-                  {
-                    DEBUG ('s', "GetString\n");
-                    char c = consoledriver->GetString();
-                    machine->WriteRegister(2, (int)c);
-                    
-                    break;
-                  }
+                // case SC_GetString:
+                //   {
+                //     DEBUG ('s', "GetString\n");
+                //     int to = machine->ReadRegister(4);
+                //     int size = machine->ReadRegister(5);
+                //     char *from = new char[size];
+                //     consoledriver->GetString(from, size);
+                //     consoledriver->copyStringToMachine(from, to, size);
+                //     delete[] from;
+                //     break;
+                //   }
+                // case SC_GetChar:
+                //   {
+                //     DEBUG ('s', "GetChar\n");
+                //     int c = consoledriver->GetChar();
+                //     machine->WriteRegister(2, c);
+                //     break;
+                //   }
+                // case SC_GetInt:
+                //   {
+                //     DEBUG ('s', "GetInt\n");
+                //     int* n = new int;
+                //     *n = machine->ReadRegister(4);
+                //     consoledriver->GetInt(n);
+                //     break;
+                //   }
+                // case SC_PutInt:
+                //   {
+                //     DEBUG ('s', "PutInt\n");
+                //     int n = machine->ReadRegister(4);
+                //     consoledriver->PutInt(n);
+                //     break;
+                //   }
                 #endif // CHANGED
                 default:
                   {
