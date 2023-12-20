@@ -43,11 +43,7 @@ void ConsoleDriver::GetString(char *s, int n)
 
     int i = 0;
     char c;
-    while(i < n){
-        c = GetChar();
-        if(c == EOF){
-            break;
-        }
+    while(i < n &&(c = GetChar()) != EOF && c != '\n'){
         s[i] = c;
         i++;
     }
@@ -65,33 +61,33 @@ void ConsoleDriver::copyStringFromMachine( int from, char *to, unsigned size){
         i++;
     }
 }
-// void ConsoleDriver::copyStringToMachine( char *from, int to, unsigned size){
-//     unsigned i = 0;
-//     int c;
-//     while(i < size){
-//         c = (int) from[i];
-//         machine->WriteMem(to+i, 1, c);
-//         if(c == '\0'){
-//             break;
-//         }
-//         i++;
-//     }
-// }
-// void ConsoleDriver::PutInt(int n){
-//     char s[12];
-//     snprintf(s, 12, "%d", n);
-//     PutString(s);
+void ConsoleDriver::copyStringToMachine( char *from, int to, unsigned size){
+    unsigned i = 0;
+    int c;
+    while(i < size){
+        c = (int) from[i];
+        machine->WriteMem(to+i, 1, c);
+        if(c == '\0'){
+            break;
+        }
+        i++;
+    }
+}
+void ConsoleDriver::PutInt(int n){
+    char s[12];
+    snprintf(s, 12, "%d", n);
+    PutString(s);
     
-// }
-// void ConsoleDriver::GetInt(int *n){
-//     int* i = new int;
-//     char* s = new char[12];
+}
+void ConsoleDriver::GetInt(int *n){
+    int* i = new int;
+    char* s = new char[12];
 
     
-//     GetString(s, 12);
-//     sscanf(s, "%d", i);
-//     machine->WriteMem(*n, 4, *i);
-//     delete i;
-//     delete[] s;
-// }
+    GetString(s, 12);
+    sscanf(s, "%d", i);
+    machine->WriteMem(*n, 4, *i);
+    delete i;
+    delete[] s;
+}
 #endif // CHANGED

@@ -89,6 +89,14 @@ ExceptionHandler (ExceptionType which)
                     break;
                   }
                 #ifdef CHANGED
+                case SC_Exit:
+                  {
+                    DEBUG ('s', "Exit\n");
+                    // int status = machine->ReadRegister(4);
+                    // currentThread->setExitStatus(status);
+                    // currentThread->Finish();
+                    break;
+                  }
                 case SC_PutChar:
                   {
                     DEBUG ('s', "PutChar\n");
@@ -107,39 +115,45 @@ ExceptionHandler (ExceptionType which)
                     delete[] to;
                     break;
                   }
-                // case SC_GetString:
-                //   {
-                //     DEBUG ('s', "GetString\n");
-                //     int to = machine->ReadRegister(4);
-                //     int size = machine->ReadRegister(5);
-                //     char *from = new char[size];
-                //     consoledriver->GetString(from, size);
-                //     consoledriver->copyStringToMachine(from, to, size);
-                //     delete[] from;
-                //     break;
-                //   }
-                // case SC_GetChar:
-                //   {
-                //     DEBUG ('s', "GetChar\n");
-                //     int c = consoledriver->GetChar();
-                //     machine->WriteRegister(2, c);
-                //     break;
-                //   }
-                // case SC_GetInt:
-                //   {
-                //     DEBUG ('s', "GetInt\n");
-                //     int* n = new int;
-                //     *n = machine->ReadRegister(4);
-                //     consoledriver->GetInt(n);
-                //     break;
-                //   }
-                // case SC_PutInt:
-                //   {
-                //     DEBUG ('s', "PutInt\n");
-                //     int n = machine->ReadRegister(4);
-                //     consoledriver->PutInt(n);
-                //     break;
-                //   }
+                case SC_GetString:
+                  {
+                    DEBUG ('s', "GetString\n");
+                    int to = machine->ReadRegister(4);
+                    int size = machine->ReadRegister(5);
+
+                    char *from = new char[size];
+                    consoledriver->GetString(from, size);
+
+                    consoledriver->copyStringToMachine(from, to, size);
+
+                    delete[] from;
+                    break;
+                  }
+                case SC_GetChar:
+                  {
+                    DEBUG ('s', "GetChar\n");
+                    int c = consoledriver->GetChar();
+                    machine->WriteRegister(2, c);
+                    break;
+                  }
+                case SC_GetInt:
+                  {
+                    DEBUG ('s', "GetInt\n");
+                    int* n = new int;
+
+                    *n = machine->ReadRegister(4);
+
+                    consoledriver->GetInt(n);
+                    delete n;
+                    break;
+                  }
+                case SC_PutInt:
+                  {
+                    DEBUG ('s', "PutInt\n");
+                    int n = machine->ReadRegister(4);
+                    consoledriver->PutInt(n);
+                    break;
+                  }
                 #endif // CHANGED
                 default:
                   {

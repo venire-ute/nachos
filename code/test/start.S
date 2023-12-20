@@ -176,6 +176,7 @@ PutChar:
         j        $31
         .end   PutChar
 
+
         .globl GetChar
         .ent   GetChar
 GetChar:
@@ -183,7 +184,6 @@ GetChar:
         syscall
         j        $31
         .end   GetChar
-
 
 
         .globl PutString
@@ -194,6 +194,15 @@ PutString:
         j        $31
         .end   PutString
 
+
+        .globl GetString
+        .ent   GetString
+GetString:
+        addiu $2,$0,SC_GetString
+        syscall
+        j        $31
+        .end   GetString
+
         .globl PutInt
         .ent   PutInt
 PutInt:
@@ -201,6 +210,7 @@ PutInt:
         syscall
         j        $31
         .end   PutInt
+
 
         .globl GetInt
         .ent   GetInt
@@ -210,4 +220,4 @@ GetInt:
         j        $31
         .end   GetInt
 
-#endif // CHANGED
+#endif

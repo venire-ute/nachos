@@ -236,6 +236,12 @@ Cleanup ()
         delete machine;
         machine = NULL;
     }
+    #ifdef CHANGED
+    if (consoledriver) {
+        delete consoledriver;
+        consoledriver = NULL;
+    }
+    #endif
 #endif
 
 #ifdef FILESYS_NEEDED
