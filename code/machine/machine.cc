@@ -54,11 +54,19 @@ void CheckEndian()
 
 Machine::Machine(bool debug)
 {
+
     int i;
+
 
     for (i = 0; i < NumTotalRegs; i++)
         registers[i] = 0;
     mainMemory = new char[MemorySize];
+
+        #ifdef CHANGED
+    pageProvider = new PageProvider((int)(MemorySize / PageSize)); 
+    #endif // CHANGED
+
+
     for (i = 0; i < MemorySize; i++)
         mainMemory[i] = 0;
 #ifdef USE_TLB
@@ -90,6 +98,9 @@ Machine::~Machine()
         delete [] tlb;
         tlb = NULL;
     }
+    #ifdef CHANGED
+    delete pageProvider;
+    #endif // CHANGED
 }
 
 //----------------------------------------------------------------------

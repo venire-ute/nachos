@@ -19,6 +19,12 @@
 #include "noff.h"
 #include "list.h"
 
+#ifdef CHANGED
+#define UserStackSize		1024 	// increase this as necessary!
+#define PagePerThread 2
+#include "bitmap.h"
+#endif // CHANGED
+
 #define UserStacksAreaSize		1024	// increase this as necessary!
 
 class AddrSpace:public dontcopythis
@@ -41,11 +47,24 @@ class AddrSpace:public dontcopythis
                                 // Dump program layout as SVG
     unsigned NumPages(void) { return numPages; }
 
+    #ifdef CHANGED
+    unsigned AllocateUserStack(void);
+    void  LockEndMain(void);
+    void  FreeEndMain(void);
+    int  NbreThreadStack(void);
+    void DeallocateUserStack();
+    #endif // CHANGED
+
   private:
     NoffHeader noffH;           // Program layout
 
     TranslationEntry * pageTable; // Page table
     unsigned int numPages;      // Number of pages in the page table
+    #ifdef CHANGED
+
+    BitMap* ThreadStack; // pour les piles des threads
+
+    #endif // CHANGED
 };
 
 extern List AddrspaceList;

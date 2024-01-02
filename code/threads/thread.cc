@@ -65,6 +65,11 @@ Thread::Thread (const char *threadName)
     // DelayedLoad is called !!!
     userRegisters[LoadReg] = 0;
     userRegisters[LoadValueReg] = 0;
+
+
+    #ifdef CHANGED
+      id = 0;
+    #endif //CHANGED
 #endif
     ThreadList.Append(this);
 
@@ -534,6 +539,15 @@ DumpThreadsState(FILE *output, AddrSpace *space, unsigned ptr_x, unsigned virtua
       }
 }
 
+#endif
+
+#ifdef CHANGED
+int Thread::GetId(){
+  return id;
+}
+void Thread::SetId(int idt){
+  id= idt;
+}
 #endif
 
 

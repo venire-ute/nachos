@@ -114,6 +114,10 @@ class Thread:public dontcopythis
     {
         printf ("%s, ", name);
     }
+    #ifdef CHANGED
+    int GetId();
+    void SetId(int idt);
+    #endif //CHANGED
 
 #ifdef USER_PROGRAM
     void DumpThreadState(FILE *output, int ptr_x, int ptr_y, unsigned virtual_x, unsigned virtual_y, unsigned blocksize);
@@ -138,6 +142,10 @@ class Thread:public dontcopythis
     void StackAllocate (VoidFunctionPtr func, void *arg);
     // Allocate a stack for thread.
     // Used internally by Start()
+
+    #ifdef CHANGED
+    int id;
+    #endif // CHANGED
 
 #ifdef USER_PROGRAM
 // A thread running a user program actually has *two* sets of CPU registers --

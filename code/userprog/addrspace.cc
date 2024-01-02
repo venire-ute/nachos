@@ -22,6 +22,14 @@
 #include "syscall.h"
 #include "new"
 
+#ifdef CHANGED
+#include "synch.h"
+Semaphore* lockEndMain;
+static void ReadAtVirtual(OpenFile *executable, int virtualaddr,
+int numBytes, int position, TranslationEntry *pageTable,
+unsigned numPages);
+#endif // CHANGED
+
 //----------------------------------------------------------------------
 // SwapHeader
 //      Do little endian to big endian conversion on the bytes in the
@@ -96,7 +104,10 @@ AddrSpace::AddrSpace (OpenFile * executable)
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++)
       {
-          pageTable[i].physicalPage = i;        // for now, phys page # = virtual page #
+        //   pageTable[i].physicalPage = i;        // for now, phys page # = virtual page #
+        #ifdef CHANGED
+            pageTable[i].physicalPage = machine->pageProvider->GetEmptyPage();
+        #endif // CHANGED
           pageTable[i].valid = TRUE;
           pageTable[i].use = FALSE;
           pageTable[i].dirty = FALSE;
@@ -110,17 +121,23 @@ AddrSpace::AddrSpace (OpenFile * executable)
       {
           DEBUG ('a', "Initializing code segment, at 0x%x, size 0x%x\n",
                  noffH.code.virtualAddr, noffH.code.size);
-          executable->ReadAt (&(machine->mainMemory[noffH.code.virtualAddr]),
-                              noffH.code.size, noffH.code.inFileAddr);
+        //   executable->ReadAt (&(machine->mainMemory[noffH.code.virtualAddr]),
+        //                       noffH.code.size, noffH.code.inFileAddr);
+        #ifdef CHANGED
+            ReadAtVirtual(executable, noffH.code.virtualAddr, noffH.code.size, noffH.code.inFileAddr, pageTable, numPages);
+        #endif // CHANGED
       }
     if (noffH.initData.size > 0)
       {
           DEBUG ('a', "Initializing data segment, at 0x%x, size 0x%x\n",
                  noffH.initData.virtualAddr, noffH.initData.size);
-          executable->ReadAt (&
-                              (machine->mainMemory
-                               [noffH.initData.virtualAddr]),
-                              noffH.initData.size, noffH.initData.inFileAddr);
+        //   executable->ReadAt (&
+        //                       (machine->mainMemory
+        //                        [noffH.initData.virtualAddr]),
+        //                       noffH.initData.size, noffH.initData.inFileAddr);
+        #ifdef CHANGED
+            ReadAtVirtual(executable, noffH.initData.virtualAddr, noffH.initData.size, noffH.initData.inFileAddr, pageTable, numPages);
+        #endif // CHANGED
       }
 
     DEBUG ('a', "Area for stacks at 0x%x, size 0x%x\n",
@@ -129,6 +146,15 @@ AddrSpace::AddrSpace (OpenFile * executable)
     pageTable[0].valid = FALSE;			// Catch NULL dereference
 
     AddrSpaceList.Append(this);
+
+    #ifdef CHANGED
+    int lengthBitMap = divRoundUp(UserStacksAreaSize, (PagePerThread * PageSize));
+    
+    ThreadStack = new BitMap(lengthBitMap);
+    ThreadStack->Mark(0);
+    lockEndMain = new Semaphore("lock at the end",0);
+
+    #endif // CHANGED
 }
 
 //----------------------------------------------------------------------
@@ -142,6 +168,13 @@ AddrSpace::~AddrSpace ()
   pageTable = NULL;
 
   AddrSpaceList.Remove(this);
+
+  #ifdef CHANGED
+    delete lockEndMain;
+    delete ThreadStack;
+  #endif // CHANGED
+
+  
 }
 
 //----------------------------------------------------------------------
@@ -292,37 +325,67 @@ AddrSpace::RestoreState ()
     machine->currentPageTable = pageTable;
     machine->currentPageTableSize = numPages;
 }
+#ifdef CHANGED
+unsigned AddrSpace::AllocateUserStack()
+{
+    // add to stread stack
+    int numBit = ThreadStack->Find();
 
+    if(numBit == -1)
+        throw std::bad_alloc();
+    // ThreadStack->Mark(numBit);
+    currentThread->SetId(numBit);
+    DEBUG ('s', "AllocateUserStack %d\n", numBit);
+
+    return numPages * PageSize - UserStacksAreaSize;
+}
+void AddrSpace::DeallocateUserStack()
+{
+    // remove from thread stack
+    ThreadStack->Clear(currentThread->GetId());
+}
+void AddrSpace::LockEndMain(){
+  lockEndMain->P();
+}
+
+void AddrSpace::FreeEndMain(){
+  lockEndMain->V();
+}
+int AddrSpace::NbreThreadStack(){
+
+  return ThreadStack->NbBitAt1();
+}
+#endif // CHANGED
 #ifdef CHANGED
 
-// void ReadAtVirtual(OpenFile *executable, int virtualaddr, int numBytes, int position, TranslationEntry *pageTable, unsigned numPages)
-// {
-//     // appel ReadAt une seule fois  pour remplir un buffer temporaire
-//     char *buffer = new char[numBytes];
-//     int read = executable->ReadAt(buffer, numBytes, position);
-//     // vérification de la lecture
-//     if (read != numBytes)
-//         throw std::bad_alloc();
+void ReadAtVirtual(OpenFile *executable, int virtualaddr, int numBytes, int position, TranslationEntry *pageTable, unsigned numPages)
+{
+    // appel ReadAt une seule fois  pour remplir un buffer temporaire
+    char *buffer = new char[numBytes];
+    int read = executable->ReadAt(buffer, numBytes, position);
+    // vérification de la lecture
+    if (read != numBytes)
+        throw std::bad_alloc();
 
-//     // changement de table de page
-//     TranslationEntry *oldPageTable = machine->currentPageTable;
-//     unsigned oldPageTableSize = machine->currentPageTableSize;
-//     machine->currentPageTable = pageTable;
-//     machine->currentPageTableSize = numPages;
+    // changement de table de page
+    TranslationEntry *oldPageTable = machine->currentPageTable;
+    unsigned oldPageTableSize = machine->currentPageTableSize;
+    machine->currentPageTable = pageTable;
+    machine->currentPageTableSize = numPages;
 
-//     // recopie en mémoire MIPS octet par octet avec WriteMem
-//     for (int i = 0; i < numBytes; i++){
+    // recopie en mémoire MIPS octet par octet avec WriteMem
+    for (int i = 0; i < numBytes; i++){
         
-//         machine->WriteMem(virtualaddr + i, 1, buffer[i]); 
+        machine->WriteMem(virtualaddr + i, 1, buffer[i]); 
 
-//     }
+    }
 
-//     // restauration de la table de page
-//     machine->currentPageTable = oldPageTable;
-//     machine->currentPageTableSize = oldPageTableSize;
+    // restauration de la table de page
+    machine->currentPageTable = oldPageTable;
+    machine->currentPageTableSize = oldPageTableSize;
     
-//     // libération du buffer temporaire
-//     delete [] buffer;
-// }
+    // libération du buffer temporaire
+    delete [] buffer;
+}
 
 #endif // CHANGED

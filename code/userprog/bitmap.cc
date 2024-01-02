@@ -125,6 +125,18 @@ BitMap::NumClear ()
     return count;
 }
 
+#ifdef CHANGED
+//renvoi le nbre de bit à 1;
+int BitMap::NbBitAt1(){
+    int cptBit = 0;
+   
+    for(int i = 0; i < numBits; i++)
+        if(Test(i))
+            cptBit++;
+    return cptBit;
+}
+#endif //CHANGED
+
 //----------------------------------------------------------------------
 // BitMap::Print
 //      Print the contents of the bitmap, for debugging.

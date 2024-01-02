@@ -26,6 +26,10 @@
 #include "translate.h"
 #include "disk.h"
 
+#ifdef CHANGED
+#include "pageprovider.h"
+#endif // CHANGED
+
 // Definitions related to the size, and format of user memory
 
 #define PageSize        SectorSize      // set the page size equal to
@@ -201,6 +205,10 @@ class Machine:public dontcopythis {
 
     TranslationEntry *currentPageTable;
     unsigned int currentPageTableSize;
+
+    #ifdef CHANGED
+    PageProvider *pageProvider;
+    #endif // CHANGED
 
   private:
     bool singleStep;            // drop back into the debugger after each

@@ -28,6 +28,7 @@
 #ifdef CHANGED
 
 #include "machine.h"
+#include "userthread.h"
 
 #endif // CHANGED
 
@@ -35,8 +36,7 @@
 // UpdatePC : Increments the Program Counter register in order to resume
 // the user program immediately after the "syscall" instruction.
 //----------------------------------------------------------------------
-static void
-UpdatePC ()
+static void UpdatePC ()
 {
   int pc = machine->ReadRegister (PCReg);
   machine->WriteRegister (PrevPCReg, pc);
@@ -85,16 +85,19 @@ ExceptionHandler (ExceptionType which)
                 case SC_Halt:
                   {
                     DEBUG ('s', "Shutdown, initiated by user program.\n");
-                    interrupt->Powerdown ();
+                    DEBUG ('s', "NbThreadStack : %d\n", currentThread->space->NbreThreadStack());
+                    while (currentThread->space->NbreThreadStack() > 1)currentThread->space->LockEndMain();
+                    
+                    
+                    interrupt->Powerdown();
                     break;
                   }
                 #ifdef CHANGED
                 case SC_Exit:
                   {
                     DEBUG ('s', "Exit\n");
-                    // int status = machine->ReadRegister(4);
-                    // currentThread->setExitStatus(status);
-                    // currentThread->Finish();
+                    machine->WriteRegister(2, 0);
+                    ExceptionHandler(SyscallException);
                     break;
                   }
                 case SC_PutChar:
@@ -154,6 +157,22 @@ ExceptionHandler (ExceptionType which)
                     consoledriver->PutInt(n);
                     break;
                   }
+                case SC_ThreadCreate:
+                  {
+                    DEBUG ('s', "ThreadCreate\n");
+                    int f = machine->ReadRegister(4);
+                    int arg = machine->ReadRegister(5);
+                    int ret = do_ThreadCreate(f, arg);
+                    machine->WriteRegister(2, ret);
+                    DEBUG ('s', "ThreadCreate END\n");
+                    break;
+                  }
+                case SC_ThreadExit:
+                  {
+                    DEBUG ('s', "ThreadExit\n");
+                    do_ThreadExit();
+                    break;
+                  }
                 #endif // CHANGED
                 default:
                   {
@@ -207,3 +226,209 @@ ExceptionHandler (ExceptionType which)
           break;
       }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+

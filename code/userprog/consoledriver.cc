@@ -5,6 +5,8 @@
 #include "synch.h"
 static Semaphore *readAvail;
 static Semaphore *writeDone;
+Semaphore *writeChar;
+Semaphore *readChar;
 static void ReadAvailHandler(void *arg) { (void) arg; readAvail->V(); }
 static void WriteDoneHandler(void *arg) { (void) arg; writeDone->V(); }
 ConsoleDriver::ConsoleDriver(const char *in, const char *out)
@@ -12,6 +14,9 @@ ConsoleDriver::ConsoleDriver(const char *in, const char *out)
 readAvail = new Semaphore("read avail", 0);
 writeDone = new Semaphore("write done", 0);
 console = new Console(in, out, ReadAvailHandler, WriteDoneHandler, NULL);
+writeChar = new Semaphore("write char", 1);
+readChar = new Semaphore("read char", 1);
+
 }
 ConsoleDriver::~ConsoleDriver()
 {
@@ -20,14 +25,19 @@ delete writeDone;
 delete readAvail;
 }
 void ConsoleDriver::PutChar(int ch)
-{
+{  
+    writeChar->P();
     console->TX(ch);
     writeDone->P();
+    writeChar->V();
 }
 int ConsoleDriver::GetChar()
 {
+    readChar->P();
     readAvail->P();
-    return console->RX();
+    char c = console->RX();
+    readChar->V();
+    return c;
 
 }
 void ConsoleDriver::PutString(const char *s)
@@ -49,7 +59,7 @@ void ConsoleDriver::GetString(char *s, int n)
     }
     s[i] = '\0';
 }
-void ConsoleDriver::copyStringFromMachine( int from, char *to, unsigned size){
+unsigned ConsoleDriver::copyStringFromMachine( int from, char *to, unsigned size){
     unsigned i = 0;
     int c;
     while(i < size){
@@ -60,6 +70,7 @@ void ConsoleDriver::copyStringFromMachine( int from, char *to, unsigned size){
         }
         i++;
     }
+    return i;
 }
 void ConsoleDriver::copyStringToMachine( char *from, int to, unsigned size){
     unsigned i = 0;
